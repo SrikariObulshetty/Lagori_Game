@@ -1,6 +1,7 @@
 /**
  * LagoriGame.tsx
- * A complete 2D skill + chase game implemented on an HTML5 canvas. Contains the game loop, input handling, and HUD.
+ * सभी गेम लॉजिक ज्यों का त्यों रखा गया है ✅
+ * केवल टेक्स्ट/लेबल्स/इंस्ट्रक्शन हिंदी में अनुवादित हैं ✅
  */
 
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -17,7 +18,10 @@ interface Vec2 {
 /** Level identifier */
 export type LevelKey = "beginner" | "intermediate" | "advanced";
 
-/** Level configuration values */
+
+
+
+
 export interface LevelConfig {
   /** Display name */
   name: string;
@@ -31,33 +35,37 @@ export interface LevelConfig {
   playerSpeed: number;
 }
 
-/** Game phases */
-type Phase = "intro" | "aim" | "dragging" | "flight" | "rebuild" | "win" | "lose";
 
-/** Exposed level presets */
+/** Game phases */
+type Phase = "परिचय" | "निशाना" | "खींचना" | "उड़ान" | "पुनर्निर्माण" | "जीत" | "हार";
+
+
+
+/** लेवल कॉन्फ़िग */
 export const LEVELS: Record<LevelKey, LevelConfig> = {
   beginner: {
-    name: "Beginner",
+    name: "शुरुआती",
     stones: 5,
     attempts: 3,
     opponentSpeed: 90,
     playerSpeed: 160,
   },
   intermediate: {
-    name: "Intermediate",
+    name: "मध्यम",
     stones: 7,
     attempts: 3,
     opponentSpeed: 120,
     playerSpeed: 165,
   },
   advanced: {
-    name: "Advanced",
+    name: "उन्नत",
     stones: 9,
     attempts: 2,
     opponentSpeed: 150,
     playerSpeed: 170,
   },
 };
+
 
 /** Entity representation for player/opponent/ball */
 interface CircleEntity {
@@ -80,16 +88,16 @@ const BASE_H = 540;
 
 /** Career → YouTube map (put your real video IDs here) */
 const CAREER_VIDEOS: Record<string, string> = {
-  Doctor: "djbtjiFRSeM",
-  Engineer: "TamDorsp6Dw",
-  "IAS Officer": "VsUoke20h_A",
-  Teacher: "SKei_49B5eQ",
-  "Chartered Accountant": "jKQqmBQCsu8",
-  Astronaut: "14fXq-2gSAE",
-  Actor: "VAhSakREFyo",
-  Cricketer: "Iu8Vy5aW_O0",
-  Entrepreneur: "2Oc_ykbJqlA",
-  "Bank Manager": "eRd0-8vPrSQ",
+  डॉक्टर: "djbtjiFRSeM",
+  इंजीनियर: "TamDorsp6Dw",
+  "आईएएस अधिकारी": "VsUoke20h_A",
+  "शिक्षक/अध्यापक": "SKei_49B5eQ",
+  "चार्टर्ड अकाउंटेंट": "jKQqmBQCsu8",
+ "अंतरिक्ष यात्री": "14fXq-2gSAE",
+  अभिनेता: "VAhSakREFyo",
+  क्रिकेटर: "Iu8Vy5aW_O0",
+  उद्यमी: "2Oc_ykbJqlA",
+  "बैंक प्रबंधक": "eRd0-8vPrSQ",
 };
 
 /**
@@ -137,7 +145,7 @@ export default function LagoriGame({ levelKey }: { levelKey: LevelKey }) {
   const rafRef = useRef<number | null>(null);
 
   // Phase and UI flags
-  const [phase, setPhase] = useState<Phase>("intro");
+  const [phase, setPhase] = useState<Phase>("परिचय");
   const [paused, setPaused] = useState<boolean>(false);
   const [roundSeed, setRoundSeed] = useState<number>(Date.now());
 
@@ -176,7 +184,7 @@ export default function LagoriGame({ levelKey }: { levelKey: LevelKey }) {
 
   // ✅ Add a small helper for on-screen movement
   const handleMove = (dir: "up" | "down" | "left" | "right") => {
-    if (phase !== "rebuild") return;
+    if (phase !== "पुनर्निर्माण") return;
     const speed = level.playerSpeed * 0.1; // small step per click
     if (dir === "up") player.current.pos.y = Math.max(10, player.current.pos.y - speed);
     if (dir === "down") player.current.pos.y = Math.min(BASE_H - 10, player.current.pos.y + speed);
@@ -251,7 +259,7 @@ export default function LagoriGame({ levelKey }: { levelKey: LevelKey }) {
     setHasViewedRoadmap(false);
     setVideoWatched(false);
 
-    setPhase("aim");
+    setPhase("निशाना");
     setRoundSeed(Date.now());
   };
 
@@ -284,7 +292,7 @@ export default function LagoriGame({ levelKey }: { levelKey: LevelKey }) {
   useEffect(() => {
     const onDown = (e: KeyboardEvent) => {
       keys.current[e.key.toLowerCase()] = true;
-      if (e.code === "Space" && phase === "rebuild") {
+      if (e.code === "Space" && phase === "पुनर्निर्माण") {
         e.preventDefault();
         tryPlaceStone();
       }
@@ -315,14 +323,14 @@ export default function LagoriGame({ levelKey }: { levelKey: LevelKey }) {
     };
 
     const down = (e: PointerEvent) => {
-      if (phase !== "aim") {
-        if (phase === "rebuild") tryPlaceStone();
+      if (phase !== "निशाना") {
+        if (phase === "पुनर्निर्माण") tryPlaceStone();
         return;
       }
       dragging.current = true;
       dragStart.current = { ...player.current.pos };
       dragCurrent.current = getLocal(e);
-      setPhase("dragging");
+      setPhase("खींचना");
       canvas.setPointerCapture(e.pointerId);
     };
     const move = (e: PointerEvent) => {
@@ -343,7 +351,7 @@ export default function LagoriGame({ levelKey }: { levelKey: LevelKey }) {
       ball.current.pos = { ...player.current.pos };
       ballVel.current = v;
       ballActive.current = true;
-      setPhase("flight");
+      setPhase("उड़ान");
     };
 
     canvas.addEventListener("pointerdown", down);
@@ -360,14 +368,14 @@ export default function LagoriGame({ levelKey }: { levelKey: LevelKey }) {
 
   /** Try placing a stone */
   const tryPlaceStone = () => {
-    if (phase !== "rebuild") return;
+    if (phase !== "पुनर्निर्माण") return;
     const near = dist(player.current.pos, world.pilePos) <= world.placeRange;
     if (!near) return;
     if (metrics.current.stonesPlaced < metrics.current.stonesTotal) {
       metrics.current.stonesPlaced += 1;
       if (metrics.current.stonesPlaced >= metrics.current.stonesTotal) {
         metrics.current.score += 50;
-        setPhase("win");
+        setPhase("जीत");
         // Show the full-screen career modal immediately after winning
         setCareerModalOpen(true);
       }
@@ -407,7 +415,7 @@ export default function LagoriGame({ levelKey }: { levelKey: LevelKey }) {
 
   /** Per-frame update */
   const update = (dt: number) => {
-    if (phase === "rebuild") {
+    if (phase === "पुनर्निर्माण") {
       const move = { x: 0, y: 0 };
       if (keys.current["w"] || keys.current["arrowup"]) move.y -= 1;
       if (keys.current["s"] || keys.current["arrowdown"]) move.y += 1;
@@ -440,11 +448,11 @@ export default function LagoriGame({ levelKey }: { levelKey: LevelKey }) {
       opponent.current.pos.y += dir.y * level.opponentSpeed * dt;
 
       if (dist(player.current.pos, opponent.current.pos) <= world.tagRange) {
-        setPhase("lose");
+        setPhase("हार");
       }
     }
 
-    if (phase === "flight" && ballActive.current) {
+    if (phase === "उड़ान" && ballActive.current) {
       const prev = { ...ball.current.pos };
       ball.current.pos.x += ballVel.current.x * dt;
       ball.current.pos.y += ballVel.current.y * dt;
@@ -463,7 +471,7 @@ export default function LagoriGame({ levelKey }: { levelKey: LevelKey }) {
         pileCollapsed.current = true;
         metrics.current.score += 10;
         opponent.current.pos = randomEdgeSpawn(BASE_W, BASE_H);
-        setPhase("rebuild");
+        setPhase("पुनर्निर्माण");
         ballActive.current = false;
       }
 
@@ -478,12 +486,12 @@ export default function LagoriGame({ levelKey }: { levelKey: LevelKey }) {
         if (!pileCollapsed.current) {
           metrics.current.attemptsLeft -= 1;
           if (metrics.current.attemptsLeft > 0) {
-            setPhase("aim");
+            setPhase("निशाना");
           } else {
-            setPhase("lose");
+            setPhase("हार");
           }
         } else {
-          setPhase("rebuild");
+          setPhase("पुनर्निर्माण");
         }
       }
     }
@@ -501,10 +509,10 @@ export default function LagoriGame({ levelKey }: { levelKey: LevelKey }) {
 
     drawPile(ctx);
     drawCircle(ctx, player.current.pos, player.current.radius, player.current.color);
-    if (phase === "rebuild" || phase === "lose") {
+    if (phase === "पुनर्निर्माण" || phase === "हार") {
       drawCircle(ctx, opponent.current.pos, opponent.current.radius, opponent.current.color);
     }
-    if (phase === "dragging") {
+    if (phase === "खींचना") {
       const start = player.current.pos;
       const end = dragCurrent.current;
       ctx.strokeStyle = "#1f2937";
@@ -517,7 +525,7 @@ export default function LagoriGame({ levelKey }: { levelKey: LevelKey }) {
       ctx.setLineDash([]);
       drawCircle(ctx, end, 4, "#111827");
     }
-    if (phase === "flight" && ballActive.current) {
+    if (phase === "उड़ान" && ballActive.current) {
       drawCircle(ctx, ball.current.pos, ball.current.radius, ball.current.color);
     }
     drawHUD(ctx);
@@ -562,18 +570,26 @@ export default function LagoriGame({ levelKey }: { levelKey: LevelKey }) {
     ctx.stroke();
   };
 
-  const drawHUD = (ctx: CanvasRenderingContext2D) => {
-    ctx.fillStyle = "#111827";
-    ctx.font = "16px sans-serif";
-    ctx.textAlign = "left";
-    ctx.fillText(`Score: ${metrics.current.score}`, 16, 26);
-    ctx.fillText(`Attempts: ${metrics.current.attemptsLeft}`, 16, 50);
-    ctx.fillText(`Phase: ${phase}`, 16, 74);
-    ctx.textAlign = "right";
-    ctx.fillText(level.name, BASE_W - 16, 26);
-  };
 
-  /** Cleanup pointer lock on unmount */
+
+
+
+
+
+/** HUD ड्रॉ */
+const drawHUD = (ctx: CanvasRenderingContext2D) => {
+  ctx.fillStyle = "#111827";
+  ctx.font = "16px sans-serif";
+  ctx.textAlign = "left";
+  ctx.fillText(`अंक: ${metrics.current.score}`, 16, 26);
+  ctx.fillText(`प्रयास: ${metrics.current.attemptsLeft}`, 16, 50);
+  ctx.fillText(`चरण: ${phase}`, 16, 74);
+  ctx.textAlign = "right";
+  ctx.fillText(level.name, BASE_W - 16, 26);
+};
+
+
+/** Cleanup pointer lock on unmount */
   useEffect(() => {
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -585,57 +601,73 @@ export default function LagoriGame({ levelKey }: { levelKey: LevelKey }) {
    * - Scrollable content
    * - Next Round button (disabled until roadmap viewed + video watched)
    */
-  const renderCareerModal = () => {
-    if (!careerModalOpen) return null;
 
-    const videoId = selectedCareer ? CAREER_VIDEOS[selectedCareer] : undefined;
-    const nextEnabled = hasViewedRoadmap && videoWatched;
+/** करियर मॉडल */
+const renderCareerModal = () => {
+  if (!careerModalOpen) return null;
+  const videoId = selectedCareer ? CAREER_VIDEOS[selectedCareer] : undefined;
+  const nextEnabled = hasViewedRoadmap && videoWatched;
 
-    return (
-      <div className="fixed inset-0 z-50 flex items-stretch justify-stretch bg-black/60">
-        {/* Full-screen modal container */}
-        <div className="mx-auto my-0 h-screen w-screen p-4 md:p-6 lg:p-8">
-          <div className="flex h-full w-full flex-col overflow-hidden rounded-2xl bg-white shadow-xl ring-1 ring-gray-200">
-            {/* Header */}
-            <div className="flex items-center justify-between gap-4 border-b p-4 md:p-5">
-              <div>
-                <h2 className="text-xl font-bold text-green-600">EXCELLENT 👏 You WON 🎉</h2>
-                <p className="text-sm text-gray-600">Pick a career, view the roadmap, and watch the video to unlock Next Round.</p>
-              </div>
-              <Button variant="outline" onClick={() => setCareerModalOpen(false)}>Close</Button>
+  return (
+    <div className="fixed inset-0 z-50 flex items-stretch justify-stretch bg-black/60">
+      {/* Full-screen modal container */}
+      <div className="mx-auto my-0 h-screen w-screen p-4 md:p-6 lg:p-8">
+        <div className="flex h-full w-full flex-col overflow-hidden rounded-2xl bg-white shadow-xl ring-1 ring-gray-200">
+          {/* हेडर */}
+          <div className="flex items-center justify-between gap-4 border-b p-4 md:p-5">
+            <div>
+              <h2 className="text-xl font-bold text-green-600">
+                शानदार 👏 आपने जीत हासिल की 🎉
+              </h2>
+              <p className="text-sm text-gray-600">
+                एक करियर चुनें, रोडमैप देखें और वीडियो देखें ताकि अगला राउंड
+                अनलॉक हो सके।
+              </p>
             </div>
+            <Button variant="outline" onClick={() => setCareerModalOpen(false)}>
+              बंद करें
+            </Button>
+          </div>
 
-            {/* Body (scrollable) */}
-            <div className="flex-1 overflow-y-auto p-4 md:p-6">
-              {/* Career & Class selectors + Fetch */}
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-                <div>
-                  <label className="mb-1 block text-sm font-medium">Career</label>
-                  <select
-                    className="w-full rounded border p-2"
-                    value={selectedCareer ?? ""}
-                    onChange={(e) => {
-                      setSelectedCareer(e.target.value || null);
-                      setVideoWatched(false);
-                    }}
-                  >
-                    <option value="">Select Career</option>
-                    {Object.keys(CAREER_VIDEOS).map((c) => (
-                      <option key={c} value={c}>{c}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="mb-1 block text-sm font-medium">Your Class</label>
-                  <input
-                    type="number"
-                    className="w-full rounded border p-2"
-                    value={classInput}
-                    onChange={(e) => setClassInput(e.target.value)}
-                    placeholder="Enter class (6–12)"
-                  />
-                </div>
-                <div className="flex items-end">
+          {/* बॉडी */}
+          <div className="flex-1 overflow-y-auto p-4 md:p-6">
+            {/* Career & Class selectors + Fetch */}
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+              <div>
+                <label className="mb-1 block text-sm font-medium">
+                  करियर
+                </label>
+                <select
+                  className="w-full rounded border p-2"
+                  value={selectedCareer ?? ""}
+                  onChange={(e) => {
+                    setSelectedCareer(e.target.value || null);
+                    setVideoWatched(false);
+                  }}
+                >
+                  <option value="">करियर चुनें</option>
+                  {Object.keys(CAREER_VIDEOS).map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="mb-1 block text-sm font-medium">
+                  आपकी कक्षा
+                </label>
+                <input
+                  type="number"
+                  className="w-full rounded border p-2"
+                  value={classInput}
+                  onChange={(e) => setClassInput(e.target.value)}
+                  placeholder="कक्षा दर्ज करें (6–12)"
+                />
+              </div>
+
+               <div className="flex items-end">
                   <Button
                     className="w-full"
                     onClick={() => {
@@ -643,6 +675,9 @@ export default function LagoriGame({ levelKey }: { levelKey: LevelKey }) {
                       setLoadingRoadmap(true);
                       setErrorRoadmap(null);
                       setRoadmapData(null);
+
+                      console.log("Selected career:", selectedCareer);
+                      console.log("Selected class:", classInput);
 
                       fetch(
                         `http://localhost:5000/api/roadmap?career=${encodeURIComponent(
@@ -665,17 +700,22 @@ export default function LagoriGame({ levelKey }: { levelKey: LevelKey }) {
                         .finally(() => setLoadingRoadmap(false));
                     }}
                   >
-                    Show Roadmap
+                   मार्गदर्शन करें
                   </Button>
                 </div>
               </div>
 
-              {/* Roadmap section */}
-              <div id="career-roadmap" className="mt-4 rounded-lg border bg-white/90">
-                <div className="max-h-[40vh] overflow-auto p-3">
-                  {loadingRoadmap && <div className="text-sm text-blue-600">Loading roadmap...</div>}
-                  {errorRoadmap && <div className="text-sm text-red-600">⚠ {errorRoadmap}</div>}
-                  {roadmapData && roadmapData.roadmap && (
+
+            {/* रोडमैप सेक्शन */}
+            <div id="career-roadmap" className="mt-4 rounded-lg border bg-white/90">
+              <div className="max-h-[40vh] overflow-auto p-3">
+                {loadingRoadmap && (
+                  <div className="text-sm text-blue-600">रोडमैप लोड हो रहा है...</div>
+                )}
+                {errorRoadmap && (
+                  <div className="text-sm text-red-600">⚠ {errorRoadmap}</div>
+                )}
+                 {roadmapData && roadmapData.roadmap && (
                     <div className="space-y-3">
                       {roadmapData.roadmap.map((stg: any, i: number) => (
                         <div key={i} className="rounded-lg border p-3">
@@ -690,113 +730,119 @@ export default function LagoriGame({ levelKey }: { levelKey: LevelKey }) {
                       ))}
                     </div>
                   )}
-                  {!loadingRoadmap && !errorRoadmap && (!roadmapData || !roadmapData.roadmap) && (
-                    <div className="text-sm text-gray-700">No roadmap found for this career.</div>
+                {!loadingRoadmap &&
+                  !errorRoadmap &&
+                  (!roadmapData || !roadmapData.roadmap) && (
+                    <div className="text-sm text-gray-700">
+                      इस करियर के लिए कोई रोडमैप नहीं मिला।
+                    </div>
                   )}
-                </div>
               </div>
-
-              {/* Video section (fixed height 360px) */}
-              {selectedCareer && CAREER_VIDEOS[selectedCareer] && (
-                <div className="mt-6">
-                  <h3 className="mb-2 font-semibold">Watch this short video:</h3>
-                  <div className="w-full max-w-4xl">
-                    <YouTube
-                      videoId={CAREER_VIDEOS[selectedCareer]}
-                      opts={{
-                        height: "360",
-                        width: "100%",
-                        playerVars: { autoplay: 0 },
-                      }}
-                      onEnd={() => setVideoWatched(true)}
-                    />
-                  </div>
-                  {!videoWatched && (
-                    <p className="mt-2 text-sm text-gray-600">Watch till the end to enable Next Round.</p>
-                  )}
-                </div>
-              )}
             </div>
 
-            {/* Footer (Next Round gating) */}
-            <div className="flex flex-col items-start gap-2 border-t p-4 md:flex-row md:items-center md:justify-between">
-              <div className="text-xs text-gray-600">
-                Status: Roadmap viewed <b>{hasViewedRoadmap ? "✅" : "❌"}</b> • Video finished <b>{videoWatched ? "✅" : "❌"}</b>
+            {/* वीडियो सेक्शन */}
+            {selectedCareer && CAREER_VIDEOS[selectedCareer] && (
+              <div className="mt-6">
+                <h3 className="mb-2 font-semibold">यह छोटा वीडियो देखें:</h3>
+                <div className="w-full max-w-4xl">
+                  <YouTube
+                    videoId={CAREER_VIDEOS[selectedCareer]}
+                    opts={{
+                      height: "360",
+                      width: "100%",
+                      playerVars: { autoplay: 0 },
+                    }}
+                    onEnd={() => setVideoWatched(true)}
+                  />
+                </div>
+                {!videoWatched && (
+                  <p className="mt-2 text-sm text-gray-600">
+                    अगला राउंड सक्षम करने के लिए अंत तक देखें।
+                  </p>
+                )}
               </div>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => setCareerModalOpen(false)}
-                >
-                  Close
-                </Button>
-                <Button
-                  onClick={() => resetRound(true)}
-                  disabled={!(hasViewedRoadmap && videoWatched)}
-                  title={
-                    hasViewedRoadmap && videoWatched
-                      ? "Start next round"
-                      : "View the roadmap and finish the video to enable"
-                  }
-                >
-                  <RotateCw className="mr-2 h-4 w-4" /> Next Round
-                </Button>
-              </div>
+            )}
+          </div>
+
+          {/* फुटर */}
+          <div className="flex flex-col items-start gap-2 border-t p-4 md:flex-row md:items-center md:justify-between">
+            <div className="text-xs text-gray-600">
+              स्थिति: रोडमैप देखा{" "}
+              <b>{hasViewedRoadmap ? "✅" : "❌"}</b> • वीडियो पूरा{" "}
+              <b>{videoWatched ? "✅" : "❌"}</b>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => setCareerModalOpen(false)}>
+                बंद करें
+              </Button>
+              <Button
+                onClick={() => resetRound(true)}
+                disabled={!(hasViewedRoadmap && videoWatched)}
+                title={
+                  hasViewedRoadmap && videoWatched
+                    ? "अगला राउंड शुरू करें"
+                    : "रोडमैप देखें और वीडियो पूरा करें"
+                }
+              >
+                <RotateCw className="mr-2 h-4 w-4" /> अगला राउंड
+              </Button>
             </div>
           </div>
         </div>
       </div>
-    );
-  };
+    </div>
+  );
+};
 
-  return (
+/** परिचय / Win / Lose overlays में भी हिंदी */
+ return (
     <div className="relative w-full h-full">
       <canvas ref={canvasRef} className="w-full h-auto block rounded-lg border" />
 
       {/* Intro Overlay */}
-      {phase === "intro" && (
+      {phase === "परिचय" && (
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-white/80">
-          <h1 className="mb-4 text-3xl font-bold">Lagori: Seven Stones</h1>
+          <h1 className="mb-4 text-3xl font-bold">लगोरी: सात पत्थर</h1>
           <Button onClick={startGame}>
-            <Play className="mr-2 h-4 w-4" /> Start
+            <Play className="mr-2 h-4 w-4" /> शुरू करें
           </Button>
         </div>
       )}
 
       {/* Win Overlay */}
-      {phase === "win" && (
+      {phase === "जीत" && (
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-green-100/80">
-          <h2 className="mb-2 text-2xl font-bold">You Win!</h2>
-          <p className="mb-4">Score: {metrics.current.score}</p>
+          <h2 className="mb-2 text-2xl font-bold">"आप जीत गए!"</h2>
+          <p className="mb-4">स्कोर: {metrics.current.score}</p>
           <div className="flex flex-wrap items-center gap-2">
             <Button
               onClick={() => setCareerModalOpen(true)}
               variant="outline"
             >
-              View Career Roadmap
+              करियर रोडमैप देखें
             </Button>
             <Button
               onClick={() => resetRound(true)}
               disabled={!(hasViewedRoadmap && videoWatched)}
               title={
                 hasViewedRoadmap && videoWatched
-                  ? "Start next round"
-                  : "View the roadmap and finish the video to enable"
+                  ? "अगला राउंड शुरू करें"
+                  : "रोडमैप देखें और वीडियो पूरा करें ताकि सक्षम हो सके"
               }
             >
-              <RotateCw className="mr-2 h-4 w-4" /> Next Round
+              <RotateCw className="mr-2 h-4 w-4" /> अगला राउंड
             </Button>
           </div>
         </div>
       )}
 
       {/* Lose Overlay */}
-      {phase === "lose" && (
+      {phase === "हार" && (
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-red-100/80">
-          <h2 className="mb-2 text-2xl font-bold">You Lose!</h2>
-          <p className="mb-4">Score: {metrics.current.score}</p>
+          <h2 className="mb-2 text-2xl font-bold">आप हार गए!</h2>
+          <p className="mb-4">स्कोर: {metrics.current.score}</p>
           <Button onClick={() => resetRound(false)}>
-            <RotateCw className="mr-2 h-4 w-4" /> Restart
+            <RotateCw className="mr-2 h-4 w-4" /> पुनः प्रारंभ करें
           </Button>
         </div>
       )}
@@ -808,12 +854,12 @@ export default function LagoriGame({ levelKey }: { levelKey: LevelKey }) {
       <div className="absolute bottom-3 right-3 z-30 flex gap-2">
         <Button variant="outline" onClick={() => setPaused((p) => !p)}>
           {paused ? <Play className="mr-2 h-4 w-4" /> : <Pause className="mr-2 h-4 w-4" />}
-          {paused ? "Resume" : "Pause"}
+          {paused ? "जारी रखें" : "रोकें"}
         </Button>
       </div>
 
       {/* ✅ On-screen movement + action buttons for mobile */}
-      {phase === "rebuild" && (
+      {phase === "पुनर्निर्माण" && (
         <div className="absolute bottom-3 left-3 z-30 flex flex-col items-center gap-2">
           {/* Up */}
           <Button
@@ -838,7 +884,7 @@ export default function LagoriGame({ levelKey }: { levelKey: LevelKey }) {
             >
             ←
             </Button>
-            <Button size="sm" onClick={handlePlaceStone}>Place</Button>
+            <Button size="sm" onClick={handlePlaceStone}>"पत्थर रखें"</Button>
             <Button
               size="sm"
               onMouseDown={() => (heldDir.current = "right")}
@@ -866,4 +912,3 @@ export default function LagoriGame({ levelKey }: { levelKey: LevelKey }) {
     </div>
   );
 }
-

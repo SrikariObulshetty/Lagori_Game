@@ -28,9 +28,9 @@ export default function HomePage() {
             <img src="https://pub-cdn.sider.ai/u/U0O9H254YZA/web-coder/68a195bc38697d89a1036db5/resource/29b06f71-9e95-4fc1-b730-75ffcac20d71.jpg" className="object-cover h-full w-full" />
           </div>
           <div className="flex-1">
-            <h1 className="text-xl font-semibold">Digital Lagori (Seven Stones)</h1>
+            <h1 className="text-xl font-semibold">डिजिटल लगोरी (सात पत्थर)</h1>
             <p className="text-sm text-neutral-600">
-              Drag to throw, WASD/Arrows to move, Space/Click to place stones while the opponent chases.
+              फेंकने के लिए खींचें, चलने के लिए WASD/एरो कुंजियाँ, स्पेस/क्लिक दबाकर पत्थर रखें जब प्रतिद्वंद्वी पीछा करे
             </p>
           </div>
 
@@ -47,7 +47,7 @@ export default function HomePage() {
               </Button>
             ))}
             <Button variant="outline" className="bg-transparent" onClick={hardRestart}>
-              Restart
+              पुनः प्रारंभ करें
             </Button>
           </div>
         </div>
